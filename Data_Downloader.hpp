@@ -1,7 +1,7 @@
-#include <string>
-
 #ifndef _Data_Downloader
 #define _Data_Downloader
+#include <string>
+
 class Data_Downloader {
 
 public:

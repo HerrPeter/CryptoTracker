@@ -1,3 +1,6 @@
+//compile with g++ Data_Downloader.cpp -lcurl
+#ifndef _DD_CPP
+#define _DD_CPP
 #include <string>
 #include <curl/curl.h>
 #include <sstream>
@@ -34,3 +37,4 @@ std::string Data_Downloader::download(const std::string& url) {
 
   return out.str();
 }
+#endif
