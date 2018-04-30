@@ -1,9 +1,10 @@
+//g++ -Wall -I/usr/include/cppconn MySQL_Connect.cpp -L/usr/lib -lmysqlcppconn
 #ifndef _MYSQL_CONN_CPP
 #define _MYSQL_CONN_CPP
 #include "MySQL_Connect.hpp"
 MySQL_conn::MySQL_conn() {
-  driver = sql::mysql::get_mysql_driver_instance();
-  con = driver->connect("tcp://127.0.0.1.3306", "user","password");
+  driver = get_driver_instance();
+  con = driver->connect("tcp://127.0.0.1", "CryptoTracker","CryptoTracker");
 }
 
 MySQL_conn::~MySQL_conn() {
