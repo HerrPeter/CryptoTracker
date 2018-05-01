@@ -68,6 +68,6 @@ void MySQL_CC_Setup(sql::Statement *stmt) {
   stmt->execute("FLUSH PRIVILEGES");
   stmt->execute("USE CryptoTracker");
   stmt->execute("CREATE TABLE CryptoCoin ( coin_name varchar(20), symbol varchar(4), PRIMARY KEY (symbol))");
-  stmt->execute("CREATE TABLE UserData ( id int(10) UNSIGNED NOT NULL AUTO_INCREMENT, username varchar(20) NOT NULL, join_date int(10) UNSIGNED, last_date int(10) UNSIGNED, PRIMARY KEY (id))");
-  stmt->execute("CREATE TABLE UserCoinID ( coin_id int UNSIGNED NOT NULL AUTO_INCREMENT, coin_symbol varchar(4), user_id int(10) UNSIGNED, add_date int(10) UNSIGNED, amount int(10), PRIMARY KEY(coin_id), INDEX(coin_symbol), INDEX(user_id), FOREIGN KEY (coin_symbol)  REFERENCES CryptoCoin(symbol), FOREIGN KEY (user_id) REFERENCES UserData(id))");
+  stmt->execute("CREATE TABLE UserData ( username varchar(20) NOT NULL, join_date int(10) UNSIGNED, last_date int(10) UNSIGNED, PRIMARY KEY (username))");
+  stmt->execute("CREATE TABLE UserCoinID ( coin_id int UNSIGNED NOT NULL AUTO_INCREMENT, coin_symbol varchar(4), u_name varchar(20) NOT NULL, add_date int(10) UNSIGNED, amount int(10), PRIMARY KEY(coin_id), INDEX(coin_symbol), INDEX(u_name), FOREIGN KEY (coin_symbol)  REFERENCES CryptoCoin(symbol), FOREIGN KEY (u_name) REFERENCES UserData(username))");
 }
