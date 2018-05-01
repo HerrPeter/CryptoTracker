@@ -8,6 +8,10 @@ MySQL_conn::MySQL_conn() {
 }
 
 MySQL_conn::~MySQL_conn() {
+  con = NULL;
+  stmt = NULL;
+  res = NULL;
+  pstmt = NULL;
   delete con;
   delete stmt;
   delete res;
@@ -15,13 +19,25 @@ MySQL_conn::~MySQL_conn() {
 }
 
 void MySQL_conn::MySQL_exe(std::string input) {
-  con->createStatement();
+  stmt = con->createStatement();
+  stmt->execute("USE CryptoTracker");
   stmt->execute(input);
 }
 
 sql::ResultSet* MySQL_conn::MySQL_fetch(std::string input) {
-  con->createStatement();
+  stmt = con->createStatement();
+  stmt->execute("USE CryptoTracker");
   res = stmt->executeQuery(input);
   return res;
+}
+
+void MySQL_conn::MySQL_prep_exe(std::string input) {
+  stmt = con->createStatement();
+  stmt->execute("USE CryptoTracker");
+  pstmt = con->prepareStatement(input);
+}
+
+sql::PreparedStatement* MySQL_conn::MySQL_prep() {
+  return pstmt;
 }
 #endif

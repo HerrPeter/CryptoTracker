@@ -19,6 +19,8 @@ class MySQL_conn {
     ~MySQL_conn();
     void MySQL_exe(std::string input);
     sql::ResultSet* MySQL_fetch(std::string input);
+    void MySQL_prep_exe(std::string input);
+    sql::PreparedStatement* MySQL_prep();
 };
 
 #endif

@@ -9,6 +9,7 @@ std::string get_price(std::string coin_symbol);
 std::string get_price(std::string coin_symbol, std::string curr_symbol);
 std::string get_price(std::string coin_symbol, std::string curr_symbol, long int timestamp);
 std::string get_coin_symbol(std::string coin_name);
+
 long int get_timestamp();
 
 std::string get_price(std::string coin_symbol) {
@@ -43,7 +44,7 @@ std::string get_coin_symbol(const std::string coin_name) {
   std::string coin_list = 
         symbol_data.download("https://www.cryptocompare.com/api/data/coinlist/");
   std::string target = "\"" + coin_name + " (";
-  int pos = coin_list.find(target);
+  unsigned int pos = coin_list.find(target);
 
   if(pos == std::string::npos)
     coin_list = "";
