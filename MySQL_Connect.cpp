@@ -24,11 +24,12 @@ void MySQL_conn::MySQL_exe(std::string input) {
   stmt->execute(input);
 }
 
-sql::ResultSet* MySQL_conn::MySQL_fetch(std::string input) {
-  stmt = con->createStatement();
-  stmt->execute("USE CryptoTracker");
-  res = stmt->executeQuery(input);
+sql::ResultSet* MySQL_conn::MySQL_fetch() {
   return res;
+}
+
+void MySQL_conn::MySQL_result(sql::ResultSet* query) {
+  res = query;
 }
 
 void MySQL_conn::MySQL_prep_exe(std::string input) {
