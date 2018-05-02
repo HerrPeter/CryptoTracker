@@ -22,6 +22,14 @@ class CT_User {
     long int coin_start(int coin_id);
     std::string coinid_symbol(int coin_id);
     std::string coin_name(int coin_symbol);
+    int get_amount(int coin_id);
+    double curr_price(int coin_id);
+    double last_price(int coin_id);
+    double start_price(int coin_id);
+    double price_lookup(int coin_id, std::string curr_sym, long int ts);
+    double curr_worth(int coin_id);
+    double last_worth(int coin_id);
+    double start_worth(int coin_id);
 };
 
 #include "CT_User.cpp"

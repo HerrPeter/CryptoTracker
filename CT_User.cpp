@@ -93,6 +93,7 @@ void CT_User::log_out(std::string user) {
   }
 }
 
+//returns a resultset to retrieve the rows of coin_id for the current user
 sql::ResultSet* CT_User::user_coins() {
   msql.MySQL_prep_exe("SELECT coin_id FROM UserCoinID WHERE u_name = ?");
   msql.MySQL_prep()->setString(1, u_name);
@@ -142,6 +143,48 @@ std::string CT_User::coin_name(int coin_symbol) {
   msql.MySQL_prep()->setInt(1, coin_symbol);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
   return msql.MySQL_fetch()->getString("coin_name");
+}
+
+//returns amount of coins in a coinid
+int CT_User::get_amount(int coin_id) {
+  msql.MySQL_prep_exe("SELECT amount FROM UserCoinID WHERE coin_id = ?");
+  msql.MySQL_prep()->setInt(1, coin_id);
+  msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  return msql.MySQL_fetch()->getInt(1);
+}
+
+//returns the current price of 1 coin in USD
+double CT_User::curr_price(int coin_id) {
+  long int ts = 0;
+  return std::stod(get_price(coinid_symbol(coin_id),  ts));
+}
+
+//returns the current price of 1 coin from the last day you logged out in USD
+double CT_User::last_price(int coin_id) {
+  return std::stod(get_price(coinid_symbol(coin_id), last_access()));
+}
+
+//returns the current price of 1 coin from the day you created the coin in USD
+double CT_User::start_price(int coin_id) {
+  return std::stod(get_price(coinid_symbol(coin_id), coin_start(coin_id)));
+}
+
+//returns the current worth of 1 coin in terms of other currencies and timestamps
+double CT_User::price_lookup(int coin_id, std::string curr_sym, long int ts) {
+  return std::stod(get_price(coinid_symbol(coin_id), curr_sym, ts));
+}
+
+//returns the current worth of the amount of cryptocoins in a coinid in USD (amount * price of 1 coin)
+double CT_User::curr_worth(int coin_id) {
+  return (get_amount(coin_id) * curr_price(coin_id));
+}
+
+double CT_User::last_worth(int coin_id) {
+  return (get_amount(coin_id) * last_price(coin_id));
+}
+
+double CT_User::start_worth(int coin_id) {
+  return (get_amount(coin_id) * start_price(coin_id));
 }
 
 #endif

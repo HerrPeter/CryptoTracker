@@ -7,9 +7,9 @@
 
 std::string get_price(std::string coin_symbol);
 std::string get_price(std::string coin_symbol, std::string curr_symbol);
+std::string get_price(std::string coin_symbol, long int timestamp);
 std::string get_price(std::string coin_symbol, std::string curr_symbol, long int timestamp);
 std::string get_coin_symbol(std::string coin_name);
-
 long int get_timestamp();
 
 std::string get_price(std::string coin_symbol) {
@@ -18,6 +18,10 @@ std::string get_price(std::string coin_symbol) {
 
 std::string get_price(std::string coin_symbol, std::string curr_symbol) {
   return get_price(coin_symbol, curr_symbol, 0);
+}
+
+std::string get_price(std::string coin_symbol, long int timestamp) {
+  return get_price(coin_symbol, "USD", timestamp);
 }
 
 std::string get_price(std::string coin_symbol, std::string curr_symbol, long int timestamp) {
