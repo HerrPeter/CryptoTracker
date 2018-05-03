@@ -24,7 +24,7 @@ class CT_User {
     long int coin_start(int coin_id);
     std::string coinid_symbol(int coin_id);
     std::string coin_name(std::string coin_symbol);
-    int get_amount(int coin_id);
+    double get_amount(int coin_id);
     double curr_price(int coin_id);
     double last_price(int coin_id);
     double start_price(int coin_id);

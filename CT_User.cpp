@@ -91,7 +91,7 @@ void CT_User::delete_curr_user() {
 }
 
 //adds a record to UserCoinID, returns true if successful and false if the CryptoCoin class for that coin dne
-bool CT_User::add_coinID(std::string symbol, int amount) {
+bool CT_User::add_coinID(std::string symbol, double amount) {
   bool exists = true;
   msql.MySQL_prep_exe("SELECT IF(symbol = ?, 0, 1) status FROM CryptoCoin WHERE symbol = ? LIMIT 1");
   msql.MySQL_prep()->setString(1, symbol);
@@ -105,7 +105,7 @@ bool CT_User::add_coinID(std::string symbol, int amount) {
   msql.MySQL_prep()->setString(1, symbol);
   msql.MySQL_prep()->setString(2, u_name);
   msql.MySQL_prep()->setInt(3, CC_API_Calls::get_timestamp());
-  msql.MySQL_prep()->setInt(4, amount);
+  msql.MySQL_prep()->setDouble(4, amount);
   msql.MySQL_prep()->setDouble(5, std::stod(CC_API_Calls::get_price(symbol)));
   msql.MySQL_prep()->setDouble(6, std::stod(CC_API_Calls::get_price(symbol)));
   msql.MySQL_prep()->executeUpdate();
@@ -213,13 +213,13 @@ std::string CT_User::coin_name(std::string coin_symbol) {
 }
 
 //returns amount of coins in a coinid
-int CT_User::get_amount(int coin_id) {
-  int amt = 0;
+double CT_User::get_amount(int coin_id) {
+  double amt = 0;
   msql.MySQL_prep_exe("SELECT amount FROM UserCoinID WHERE coin_id = ?");
   msql.MySQL_prep()->setInt(1, coin_id);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
   if(msql.res_next())
-    amt = msql.MySQL_fetch()->getInt(1);
+    amt = msql.MySQL_fetch()->getDouble(1);
   return amt;
 }
 
