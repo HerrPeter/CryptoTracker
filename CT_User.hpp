@@ -14,14 +14,14 @@ class CT_User {
     bool login();
     bool delete_coinID(int coin_id);
     void delete_curr_user();
-    void add_coinID(std::string symbol, int amount);
+    bool add_coinID(std::string symbol, int amount);
     void log_out(std::string user);
     sql::ResultSet* user_coins();
     long int last_access();
     long int join_date ();
     long int coin_start(int coin_id);
     std::string coinid_symbol(int coin_id);
-    std::string coin_name(int coin_symbol);
+    std::string coin_name(std::string coin_symbol);
     int get_amount(int coin_id);
     double curr_price(int coin_id);
     double last_price(int coin_id);
@@ -31,6 +31,4 @@ class CT_User {
     double last_worth(int coin_id);
     double start_worth(int coin_id);
 };
-
-#include "CT_User.cpp"
 #endif
