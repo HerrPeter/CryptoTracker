@@ -67,7 +67,7 @@ void MySQL_CC_Setup(sql::Statement *stmt) {
   stmt->execute("GRANT ALL PRIVILEGES ON CryptoTracker.* TO 'CryptoTracker'@'localhost'");
   stmt->execute("FLUSH PRIVILEGES");
   stmt->execute("USE CryptoTracker");
-  stmt->execute("CREATE TABLE CryptoCoin ( coin_name varchar(20), symbol varchar(4), PRIMARY KEY (symbol))");
+  stmt->execute("CREATE TABLE CryptoCoin ( coin_name varchar(20), symbol varchar(5), PRIMARY KEY (symbol))");
   stmt->execute("CREATE TABLE UserData ( username varchar(20) NOT NULL, join_date int(10) UNSIGNED, last_date int(10) UNSIGNED, PRIMARY KEY (username))");
   stmt->execute("CREATE TABLE UserCoinID ( coin_id int UNSIGNED NOT NULL AUTO_INCREMENT, coin_symbol varchar(5), u_name varchar(20) NOT NULL, add_date int(10) UNSIGNED, amount int(10), last_price DOUBLE PRECISION(10,2), add_price DOUBLE PRECISION(10,2), PRIMARY KEY(coin_id), INDEX(coin_symbol), INDEX(u_name), FOREIGN KEY (coin_symbol)  REFERENCES CryptoCoin(symbol), FOREIGN KEY (u_name) REFERENCES UserData(username))");
 }
