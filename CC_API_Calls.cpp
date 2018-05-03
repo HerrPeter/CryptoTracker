@@ -35,12 +35,13 @@ std::string get_price(std::string coin_symbol, std::string curr_symbol, long int
   else
      price = pr.download("https://min-api.cryptocompare.com/data/pricehistorical?fsym=" + coin_symbol + "&tsyms=" + curr_symbol + "&ts=" + ts + "&extraParams=CryptoTracker");
 
-  int t;
-  int index = price.find(curr_symbol);
-  for(int i = index + curr_symbol.length() + 1; price[i+1] != '}'; i++)
+  int t = 0;
+  std::string target = curr_symbol + "\":";
+  int index = price.find(target) + target.length();
+  for(int i = index; price[i] != '}'; i++)
      t++;
 
-  return price.substr(index + curr_symbol.length() +1, t++);
+  return price.substr(index, t);
 }
 
 std::string get_coin_symbol(const std::string coin_name) {

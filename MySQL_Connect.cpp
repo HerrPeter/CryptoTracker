@@ -32,6 +32,10 @@ void MySQL_conn::MySQL_result(sql::ResultSet* query) {
   res = query;
 }
 
+bool MySQL_conn::res_next() {
+  return res->next();
+}
+
 void MySQL_conn::MySQL_prep_exe(std::string input) {
   stmt = con->createStatement();
   stmt->execute("USE CryptoTracker");

@@ -9,14 +9,16 @@ CT_User::CT_User(std::string user) {
 //returns true if coin added and not previously in the database, false otherwise
 bool CT_User::add_coin(std::string coin_name) {
   //checks if the coin is already in the database before running get_coin_symbol
+  bool exists = true;
   msql.MySQL_prep_exe("SELECT IF(coin_name = ?, 0, 1) status FROM CryptoCoin LIMIT 1");
   msql.MySQL_prep()->setString(1, coin_name);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
-  bool exists = msql.MySQL_fetch()->getInt(1);
+  msql.res_next();
+  exists = msql.MySQL_fetch()->getInt(1);
 
-  if(!exists) {
+  if(exists) {
     std::string coin_symbol = get_coin_symbol(coin_name);
-    msql.MySQL_prep_exe("INSERT INTO CryptoCoin VALUES(?,?)");
+    msql.MySQL_prep_exe("INSERT IGNORE INTO CryptoCoin VALUES(?,?)");
     msql.MySQL_prep()->setString(1, coin_name);
     msql.MySQL_prep()->setString(2, coin_symbol);
     msql.MySQL_prep()->executeUpdate();
@@ -26,15 +28,16 @@ bool CT_User::add_coin(std::string coin_name) {
 
 //returns true if new user, returns false if existing
 bool CT_User::login() {
-  //returns 1 if username already exists, 0 if not found
+  bool exists = true;
   msql.MySQL_prep_exe("SELECT IF(username = ?, 0, 1) status FROM UserData LIMIT 1");
   msql.MySQL_prep()->setString(1, u_name);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
-  bool exists = msql.MySQL_fetch()->getInt(1);
+  msql.res_next();
+ exists = msql.MySQL_fetch()->getInt(1);
 
   //creates user and sets timestamps if new user
-  if(!exists) {
-    msql.MySQL_prep_exe("INSERT INTO UserData VALUES(?,?,?)");
+  if(exists) {
+    msql.MySQL_prep_exe("INSERT IGNORE INTO UserData VALUES(?,?,?)");
     msql.MySQL_prep()->setString(1, u_name);
     msql.MySQL_prep()->setInt(2, get_timestamp());
     msql.MySQL_prep()->setInt(3, get_timestamp());
@@ -46,10 +49,12 @@ bool CT_User::login() {
 
 //returns true if delete successful, false if coin_id dne
 bool CT_User::delete_coinID(int coin_id) {
+  bool exists = true;
   msql.MySQL_prep_exe("SELECT IF(coin_id = ?, 0, 1) status FROM UserCoinID LIMIT 1");
   msql.MySQL_prep()->setInt(1, coin_id);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
-  bool exists = msql.MySQL_fetch()->getInt(1);
+  msql.res_next();
+  exists = msql.MySQL_fetch()->getInt(1);
 
   if(exists) {
     msql.MySQL_prep_exe("DELETE FROM UserCoinID WHERE coin_id = ?");
@@ -91,18 +96,23 @@ bool CT_User::add_coinID(std::string symbol, int amount) {
 //switches the current user to the username in the parameter
 //if an empty string is passed does not log a new user in
 void CT_User::log_out(std::string user) {
-  msql.MySQL_prep_exe("UPDATE UserData SET last_access=? WHERE username=?");
+  msql.MySQL_prep_exe("UPDATE UserData SET last_date=? WHERE username=?");
   msql.MySQL_prep()->setInt(1, get_timestamp());
   msql.MySQL_prep()->setString(2, u_name);
   msql.MySQL_prep()->executeUpdate();
-  msql.MySQL_result(user_coins());
-  msql.MySQL_prep_exe("UPDATE UserCoinData SET last_price=? WHERE coin_id =?");
+//  msql.MySQL_result(user_coins());
+  sql::ResultSet* rs = user_coins();
+  msql.MySQL_prep_exe("UPDATE UserCoinID SET last_price=? WHERE coin_id =?");
 
-  while(msql.MySQL_fetch()->next()) {
-    msql.MySQL_prep()->setDouble(1, curr_price(msql.MySQL_fetch()->getInt(1)));
-    msql.MySQL_prep()->setInt(2, msql.MySQL_fetch()->getInt(1));
+  while(rs->next()) {
+    int coinid = rs->getInt(1);
+    msql.MySQL_prep()->setDouble(1, curr_price(coinid));
+    msql.MySQL_prep()->setInt(2, coinid);
     msql.MySQL_prep()->executeUpdate();
   }
+
+  rs = NULL;
+  delete rs;
 
   if(user != "") {
     u_name = user;
@@ -115,6 +125,7 @@ sql::ResultSet* CT_User::user_coins() {
   msql.MySQL_prep_exe("SELECT coin_id FROM UserCoinID WHERE u_name = ?");
   msql.MySQL_prep()->setString(1, u_name);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  msql.res_next();
   return msql.MySQL_fetch();
 }
 
@@ -124,6 +135,7 @@ long int CT_User::last_access() {
   msql.MySQL_prep_exe("SELECT last_date FROM UserData WHERE username = ?");
   msql.MySQL_prep()->setString(1, u_name);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  msql.res_next();
   long int ts = msql.MySQL_fetch()->getInt(1);
   return ts;
 }
@@ -133,6 +145,7 @@ long int CT_User::join_date () {
   msql.MySQL_prep_exe("SELECT join_date FROM UserData WHERE username = ?");
   msql.MySQL_prep()->setString(1, u_name);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  msql.res_next();
   long int ts = msql.MySQL_fetch()->getInt(1);
   return ts;
 }
@@ -151,21 +164,24 @@ std::string CT_User::coinid_symbol(int coin_id) {
   msql.MySQL_prep_exe("SELECT coin_symbol FROM UserCoinID WHERE coin_id = ?");
   msql.MySQL_prep()->setInt(1, coin_id);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  msql.res_next();
   return msql.MySQL_fetch()->getString("coin_symbol");
 }
 
 //returns name of coin given symbol
 std::string CT_User::coin_name(std::string coin_symbol) {
   std::string c_name ="";
-  msql.MySQL_prep_exe("SELECT IF(coin_symbol = ?, 0, 1) status FROM CryptoCoin LIMIT 1");
+  msql.MySQL_prep_exe("SELECT IF(symbol = ?, 0, 1) status FROM CryptoCoin LIMIT 1");
   msql.MySQL_prep()->setString(1, coin_symbol);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  msql.res_next();
   bool exists = msql.MySQL_fetch()->getInt(1);
 
   if(exists) {
     msql.MySQL_prep_exe("SELECT coin_name FROM CryptoCoin WHERE symbol = ?");
     msql.MySQL_prep()->setString(1, coin_symbol);
     msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+    msql.res_next();
     c_name =  msql.MySQL_fetch()->getString("coin_name");
   }
 
@@ -177,6 +193,7 @@ int CT_User::get_amount(int coin_id) {
   msql.MySQL_prep_exe("SELECT amount FROM UserCoinID WHERE coin_id = ?");
   msql.MySQL_prep()->setInt(1, coin_id);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  msql.res_next();
   return msql.MySQL_fetch()->getInt(1);
 }
 
@@ -191,6 +208,7 @@ double CT_User::last_price(int coin_id) {
   msql.MySQL_prep_exe("SELECT last_price FROM UserCoinID WHERE coin_id = ?");
   msql.MySQL_prep()->setInt(1, coin_id);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  msql.res_next();
   return msql.MySQL_fetch()->getDouble(1);
 }
 
@@ -199,6 +217,7 @@ double CT_User::start_price(int coin_id) {
   msql.MySQL_prep_exe("SELECT add_price FROM UserCoinID WHERE coin_id = ?");
   msql.MySQL_prep()->setInt(1, coin_id);
   msql.MySQL_result(msql.MySQL_prep()->executeQuery());
+  msql.res_next();
   return msql.MySQL_fetch()->getDouble(1);
 }
 
