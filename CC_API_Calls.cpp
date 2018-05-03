@@ -41,28 +41,22 @@ std::string get_price(std::string coin_symbol, std::string curr_symbol, long int
   for(int i = index; price[i] != '}'; i++)
      t++;
 
-  return price.substr(index, t);
+  return price.substr(index, t-1);
 }
 
-std::string get_coin_symbol(const std::string coin_name) {
+std::string get_coin_symbol(std::string coin_name) {
   Data_Downloader symbol_data;
-  std::string coin_list = 
-        symbol_data.download("https://www.cryptocompare.com/api/data/coinlist/");
-  std::string target = "\"" + coin_name + " (";
+  std::string coin_list = symbol_data.download("https://www.cryptocompare.com/api/data/coinlist/");
+  std::string target = "\"FullName\":\"" + coin_name + " (";
   unsigned int pos = coin_list.find(target);
 
   if(pos == std::string::npos)
     coin_list = "";
 
   else {
-    coin_list = coin_list.substr(pos + target.length(),5);
-
-    for(int i = 3; i < 5; i++) { 
-      if(coin_list[i] == ')') {
-        coin_list = coin_list.substr(0, i);
-        break;
-      }
-    }
+    pos = pos + target.length();
+    coin_list = coin_list.substr(pos, 40);
+    coin_list = coin_list.substr(0, coin_list.find(")"));
   }
 
   return coin_list;
