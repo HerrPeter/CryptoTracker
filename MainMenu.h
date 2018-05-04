@@ -30,6 +30,12 @@ class MainMenu : public Gtk::Window
         Gtk::Button coinAmountButton;
         Gtk::Button loginButton;
 
+        Gtk::Label symbolLabel;
+        Gtk::Label symbolValue;
+
+        Gtk::Label priceLabel;
+        Gtk::Label priceValue;
+
         Gtk::Grid mainGrid;
         Gtk::Notebook selector;
         Gtk::Entry coinNameText;
