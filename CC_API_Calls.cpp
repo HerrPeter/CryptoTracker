@@ -44,10 +44,9 @@ std::string CC_API_Calls::get_coin_symbol(std::string coin_name) {
   std::string target = "\"FullName\":\"" + coin_name + " (";
   unsigned int pos = coin_list.find(target);
 
-  if(pos == std::string::npos)
+  if (pos == std::string::npos || pos == -1) {
     coin_list = "";
-
-  else {
+  } else {
     pos = pos + target.length();
     coin_list = coin_list.substr(pos, 40);
     coin_list = coin_list.substr(0, coin_list.find(")"));
