@@ -2,29 +2,23 @@
 
 #ifndef CC_API_CALLS
 #define CC_API_CALLS
-#include "Data_Downloader.cpp"
+#include "CC_API_Calls.hpp"
+#include "Data_Downloader.hpp"
 #include <ctime>
 
-std::string get_price(std::string coin_symbol);
-std::string get_price(std::string coin_symbol, std::string curr_symbol);
-std::string get_price(std::string coin_symbol, long int timestamp);
-std::string get_price(std::string coin_symbol, std::string curr_symbol, long int timestamp);
-std::string get_coin_symbol(std::string coin_name);
-long int get_timestamp();
-
-std::string get_price(std::string coin_symbol) {
+std::string CC_API_Calls::get_price(std::string coin_symbol) {
   return get_price(coin_symbol, "USD", 0);
 }
 
-std::string get_price(std::string coin_symbol, std::string curr_symbol) {
+std::string CC_API_Calls::get_price(std::string coin_symbol, std::string curr_symbol) {
   return get_price(coin_symbol, curr_symbol, 0);
 }
 
-std::string get_price(std::string coin_symbol, long int timestamp) {
+std::string CC_API_Calls::get_price(std::string coin_symbol, long int timestamp) {
   return get_price(coin_symbol, "USD", timestamp);
 }
 
-std::string get_price(std::string coin_symbol, std::string curr_symbol, long int timestamp) {
+std::string CC_API_Calls::get_price(std::string coin_symbol, std::string curr_symbol, long int timestamp) {
   Data_Downloader pr;
 
   std::string price;
@@ -44,7 +38,7 @@ std::string get_price(std::string coin_symbol, std::string curr_symbol, long int
   return price.substr(index, t-1);
 }
 
-std::string get_coin_symbol(std::string coin_name) {
+std::string CC_API_Calls::get_coin_symbol(std::string coin_name) {
   Data_Downloader symbol_data;
   std::string coin_list = symbol_data.download("https://www.cryptocompare.com/api/data/coinlist/");
   std::string target = "\"FullName\":\"" + coin_name + " (";
@@ -62,7 +56,7 @@ std::string get_coin_symbol(std::string coin_name) {
   return coin_list;
 }
 
-long int get_timestamp() {
+long int CC_API_Calls::get_timestamp() {
   time_t t = std::time(0);
   return t;
 }
