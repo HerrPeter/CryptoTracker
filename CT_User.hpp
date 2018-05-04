@@ -2,7 +2,7 @@
 #ifndef _CT_USER_HPP
 #define _CT_USER_HPP
 #include "MySQL_Connect.cpp"
-#include "CC_API_Calls.cpp"
+#include "CC_API_Calls.hpp"
 
 class CT_User {
   private:
