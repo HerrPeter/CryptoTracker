@@ -26,17 +26,26 @@ MainMenu::MainMenu()
     coinAmountButton.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::amount_button_clicked));
     coinNameButton2.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::holdings_button_clicked));
 
-    mainGrid.attach(coinNameButton, 1, 0, 1, 1);
-    mainGrid.attach(coinAmountButton, 1, 1, 1, 1);
-    mainGrid.attach(coinNameText, 0, 0, 1, 1);
-    mainGrid.attach(coinAmountText, 0, 1, 1, 1);
+    symbolLabel.set_text("Symbol:");
+    symbolValue.set_text("");
+    priceLabel.set_text("Price:");
+    priceValue.set_text("");
+
+
+    mainGrid.attach(coinNameText, 0, 0, 2, 1);
+    mainGrid.attach(coinNameButton, 2, 0, 2, 1);
+
+    mainGrid.attach(symbolLabel, 0, 1, 1, 1);
+    mainGrid.attach(symbolValue, 1, 1, 1, 1);
+    mainGrid.attach(priceLabel, 2, 1, 1, 1);
+    mainGrid.attach(priceValue, 3, 1, 1, 1);
+
+    mainGrid.attach(coinAmountText, 0, 2, 2, 1);
+    mainGrid.attach(coinAmountButton, 2, 2, 2, 1);
+
 
     secondaryGrid.attach(coinNameText2, 0, 0, 1, 1);
     secondaryGrid.attach(coinNameButton2, 1, 0, 1, 1);
-
-
-    //mainGrid.add(homeButton);
-    //mainGrid.add(exitButton);
 
     mainGrid.show_all();
     secondaryGrid.show_all();
@@ -67,14 +76,22 @@ void MainMenu::createLoginDialog() {
 
 void MainMenu::coin_button_clicked() {
     std::cout << "Perform coin lookup" << std::endl;
-
-    if (userObj->isLoggedIn()) {
-        std::string coinSym = CC_API_Calls::get_coin_symbol(coinNameText.get_text().raw());
+    std::string coinSym = CC_API_Calls::get_coin_symbol(coinNameText.get_text().raw());
+    if (coinSym == "") {
+        // display coin not found dialog
+        Gtk::MessageDialog *emptyMessage = new Gtk::MessageDialog("Invalid coin name");
+        emptyMessage->set_modal(true);
+        emptyMessage->set_transient_for(*this);
+        emptyMessage->set_title("Invalid coin name");
+        emptyMessage->set_size_request(200, 100);
+        emptyMessage->show_all_children();
+        emptyMessage->run();
+        delete emptyMessage;
     } else {
-        createLoginDialog();
+        symbolValue.set_text(coinSym);
+        std::string coinPrice = CC_API_Calls::get_price(coinSym);
+        priceValue.set_text("$" + coinPrice);
     }
-
-
 }
 
 void MainMenu::amount_button_clicked() {
@@ -83,13 +100,45 @@ void MainMenu::amount_button_clicked() {
     if (userObj->isLoggedIn()) {
         if (coinNameText.get_text().raw().empty()) {
             // display empty dialog
+            Gtk::MessageDialog *emptyMessage = new Gtk::MessageDialog("Please enter a coin name");
+            emptyMessage->set_modal(true);
+            emptyMessage->set_transient_for(*this);
+            emptyMessage->set_title("Invalid coin name");
+            emptyMessage->set_size_request(200, 100);
+            emptyMessage->show_all_children();
+            emptyMessage->run();
+            delete emptyMessage;
         } else {
             try {
-                int amt = std::stoid(coinAmountText.get_text().raw());
-                userObj.add_coin(coinNameText.get_text().raw());
-                userObj.add_coinID(CC_API_Calls::get_coin_symbol(coinNameText.get_text().raw()), amt);
+                double amt = std::stod(coinAmountText.get_text().raw());
+
+                std::string coinSym = CC_API_Calls::get_coin_symbol(coinNameText.get_text().raw());
+                if (coinSym != "") {
+
+                    // insert coin into database, and credit amount to user's account
+                    userObj->add_coin(coinNameText.get_text().raw());
+                    userObj->add_coinID(CC_API_Calls::get_coin_symbol(coinNameText.get_text().raw()), amt);
+                } else {
+                    // display coin not found dialog
+                    Gtk::MessageDialog *emptyMessage = new Gtk::MessageDialog("Invalid coin name");
+                    emptyMessage->set_modal(true);
+                    emptyMessage->set_transient_for(*this);
+                    emptyMessage->set_title("Invalid coin name");
+                    emptyMessage->set_size_request(200, 100);
+                    emptyMessage->show_all_children();
+                    emptyMessage->run();
+                    delete emptyMessage;
+                }
             } catch (int e) {
                 // display invalid amount dialog
+                Gtk::MessageDialog *invalidAmount = new Gtk::MessageDialog("Please enter a valid amount");
+                invalidAmount->set_modal(true);
+                invalidAmount->set_transient_for(*this);
+                invalidAmount->set_title("Invalid Amount");
+                invalidAmount->set_size_request(200, 100);
+                invalidAmount->show_all_children();
+                invalidAmount->run();
+                delete invalidAmount;
             }
 
         }
@@ -109,7 +158,6 @@ void MainMenu::holdings_button_clicked() {
 }
 
 void MainMenu::login() {
-    //cout << enterUsername.get_text().raw() << endl;
     if (enterUsername.get_text() != "") {
         userObj = new CT_User(enterUsername.get_text().raw());
         delete loginDialog;
