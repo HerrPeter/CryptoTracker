@@ -1,7 +1,7 @@
 //g++ -Wall -I/usr/include/cppconn -std=c++11 CT_User.hpp -L/usr/lib -lmysqlcppconn -lcurl
 #ifndef _CT_USER_HPP
 #define _CT_USER_HPP
-#include "MySQL_Connect.cpp"
+#include "MySQL_Connect.hpp"
 #include "CC_API_Calls.hpp"
 
 class CT_User {
@@ -10,6 +10,8 @@ class CT_User {
     MySQL_conn msql;
   public:
     CT_User(std::string user);
+    CT_User();
+    bool isLoggedIn();
     bool add_coin(std::string coin_name);
     bool login();
     bool delete_coinID(int coin_id);
