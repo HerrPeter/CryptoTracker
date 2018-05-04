@@ -1,9 +1,21 @@
 #ifndef _CT_USER_CPP
 #define _CT_USER_CPP
 #include "CT_User.hpp"
+#include <iostream>
+using namespace std;
+
+CT_User::CT_User() {
+    u_name = "";
+    MySQL_conn msql = MySQL_conn();
+}
+
 CT_User::CT_User(std::string user) {
   u_name = user;
   MySQL_conn msql = MySQL_conn();
+}
+
+bool CT_User::isLoggedIn() {
+    return !u_name.empty();
 }
 
 //returns true if coin added and not previously in the database, false otherwise
