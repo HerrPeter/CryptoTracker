@@ -259,12 +259,45 @@ void MainMenu::amount_button_clicked() {
     }
 }
 
-void MainMenu::holdings_button_clicked() {
-    std::cout << "Perform holdings action" << std::endl;
-    pageNum = 0;
-    clear_all_values();
-    if (userObj->isLoggedIn()) {
+void MainMenu::clear_arrays() {
+    for (int i = 0; i < 5; i++) {
+        coinNameArr[i] = "";
+        coinSymArr[i] = "";
+        coinAmtArr[i] = 0;
+        coinAddPriceArr[i] = 0;
+        coinAddTotalArr[i] = 0;
+        coinCurrentPriceArr[i] = 0;
+        coinTotalPriceArr[i] = 0;
+    }
+}
 
+void MainMenu::holdings_button_clicked() {
+    if (userObj->isLoggedIn()) {
+        clear_arrays();
+        displayAll = false;
+        pageNum = 0;
+        sql::ResultSet* coins = userObj->user_coins();
+        int i = 0;
+        while (i < 5) {
+            if (coins->next()) {
+                int coinId = coins->getInt(1);
+                std::string coinSym = userObj->coinid_symbol(coinId);
+                std::string coinName = userObj->coin_name(coinSym);
+                if (coinName == coinNameText2.get_text().raw()) {
+                    coinNameArr[i] = coinName;
+                    coinSymArr[i] = coinSym;
+                    coinAmtArr[i] = userObj->get_amount(coinId);
+                    coinAddPriceArr[i] = userObj->start_price(coinId);
+                    coinAddTotalArr[i] = userObj->start_worth(coinId);
+                    coinCurrentPriceArr[i] = userObj->curr_price(coinId);
+                    coinTotalPriceArr[i] = userObj->curr_worth(coinId);
+                    i++;
+                }
+            } else {
+                break;
+            }
+        }
+        fill_values();
     } else {
         createLoginDialog();
     }
@@ -336,84 +369,245 @@ void MainMenu::switchUser() {
 }
 
 void MainMenu::holdings_display_all() {
-    displayAll = true;
-    pageNum = 0;
-    sql::ResultSet* coins = userObj->user_coins();
-    for (int i = 0; i < 5; i++) {
-        int coinId = coins->getInt(1);
-        std::string coinSym = userObj->coinid_symbol(coinId);
-        coinNameArr[i] = userObj->coin_name(coinSym);
-        coinSymArr[i] = coinSym;
-        coinAmtArr[i] = userObj->get_amount(coinId);
-        coinAddPriceArr[i] = userObj->start_price(coinId);
-        coinAddTotalArr[i] = userObj->start_worth(coinId);
-        coinCurrentPriceArr[i] = userObj->curr_price(coinId);
-        coinTotalPriceArr[i] = userObj->curr_worth(coinId);
-        coins->next();
+    if (userObj->isLoggedIn()) {
+        clear_arrays();
+        displayAll = true;
+        pageNum = 0;
+        sql::ResultSet* coins = userObj->user_coins();
+        for (int i = 0; i < 5; i++) {
+            if (coins->next()) {
+                std::cout << coins->rowsCount() << std::endl;
+                std::cout << coins->getInt(1) << std::endl;
+                int coinId = coins->getInt(1);
+                std::string coinSym = userObj->coinid_symbol(coinId);
+                coinNameArr[i] = userObj->coin_name(coinSym);
+                coinSymArr[i] = coinSym;
+                coinAmtArr[i] = userObj->get_amount(coinId);
+                coinAddPriceArr[i] = userObj->start_price(coinId);
+                coinAddTotalArr[i] = userObj->start_worth(coinId);
+                coinCurrentPriceArr[i] = userObj->curr_price(coinId);
+                coinTotalPriceArr[i] = userObj->curr_worth(coinId);
+            } else {
+                break;
+            }
+        }
+        fill_values();
+    } else {
+        createLoginDialog();
     }
-    fill_values();
 
 }
 
 void MainMenu::fill_values() {
-    coinName1Label.set_text(coinNameArr[0]);
-    coinSymbol1Label.set_text(coinSymArr[0]);
-    coinAmount1Label.set_text(std::to_string(coinAmtArr[0]));
-    coinAddPrice1Label.set_text(std::to_string(coinAddPriceArr[0]));
-    coinAddTotal1Label.set_text(std::to_string(coinAddTotalArr[0]));
-    coinCurrentPrice1Label.set_text(std::to_string(coinCurrentPriceArr[0]));
-    coinTotalPrice1Label.set_text(std::to_string(coinTotalPriceArr[0]));
+    clear_all_values();
+    if (coinNameArr[0] != "") {
+        coinName1Label.set_text(coinNameArr[0]);
+        coinSymbol1Label.set_text(coinSymArr[0]);
+        coinAmount1Label.set_text(std::to_string(coinAmtArr[0]));
+        coinAddPrice1Label.set_text(std::to_string(coinAddPriceArr[0]));
+        coinAddTotal1Label.set_text(std::to_string(coinAddTotalArr[0]));
+        coinCurrentPrice1Label.set_text(std::to_string(coinCurrentPriceArr[0]));
+        coinTotalPrice1Label.set_text(std::to_string(coinTotalPriceArr[0]));
+    }
 
-    coinName2Label.set_text(coinNameArr[1]);
-    coinSymbol2Label.set_text(coinSymArr[1]);
-    coinAmount2Label.set_text(std::to_string(coinAmtArr[1]));
-    coinAddPrice2Label.set_text(std::to_string(coinAddPriceArr[1]));
-    coinAddTotal2Label.set_text(std::to_string(coinAddTotalArr[1]));
-    coinCurrentPrice2Label.set_text(std::to_string(coinCurrentPriceArr[1]));
-    coinTotalPrice2Label.set_text(std::to_string(coinTotalPriceArr[1]));
+    if (coinNameArr[1] != "") {
+        coinName2Label.set_text(coinNameArr[1]);
+        coinSymbol2Label.set_text(coinSymArr[1]);
+        coinAmount2Label.set_text(std::to_string(coinAmtArr[1]));
+        coinAddPrice2Label.set_text(std::to_string(coinAddPriceArr[1]));
+        coinAddTotal2Label.set_text(std::to_string(coinAddTotalArr[1]));
+        coinCurrentPrice2Label.set_text(std::to_string(coinCurrentPriceArr[1]));
+        coinTotalPrice2Label.set_text(std::to_string(coinTotalPriceArr[1]));
+    }
 
-    coinName3Label.set_text(coinNameArr[2]);
-    coinSymbol3Label.set_text(coinSymArr[2]);
-    coinAmount3Label.set_text(std::to_string(coinAmtArr[2]));
-    coinAddPrice3Label.set_text(std::to_string(coinAddPriceArr[2]));
-    coinAddTotal3Label.set_text(std::to_string(coinAddTotalArr[2]));
-    coinCurrentPrice3Label.set_text(std::to_string(coinCurrentPriceArr[2]));
-    coinTotalPrice3Label.set_text(std::to_string(coinTotalPriceArr[2]));
+    if (coinNameArr[2] != "") {
+        coinName3Label.set_text(coinNameArr[2]);
+        coinSymbol3Label.set_text(coinSymArr[2]);
+        coinAmount3Label.set_text(std::to_string(coinAmtArr[2]));
+        coinAddPrice3Label.set_text(std::to_string(coinAddPriceArr[2]));
+        coinAddTotal3Label.set_text(std::to_string(coinAddTotalArr[2]));
+        coinCurrentPrice3Label.set_text(std::to_string(coinCurrentPriceArr[2]));
+        coinTotalPrice3Label.set_text(std::to_string(coinTotalPriceArr[2]));
+    }
 
-    coinName4Label.set_text(coinNameArr[3]);
-    coinSymbol4Label.set_text(coinSymArr[3]);
-    coinAmount4Label.set_text(std::to_string(coinAmtArr[3]));
-    coinAddPrice4Label.set_text(std::to_string(coinAddPriceArr[3]));
-    coinAddTotal4Label.set_text(std::to_string(coinAddTotalArr[3]));
-    coinCurrentPrice4Label.set_text(std::to_string(coinCurrentPriceArr[3]));
-    coinTotalPrice4Label.set_text(std::to_string(coinTotalPriceArr[3]));
+    if (coinNameArr[3] != "") {
+        coinName4Label.set_text(coinNameArr[3]);
+        coinSymbol4Label.set_text(coinSymArr[3]);
+        coinAmount4Label.set_text(std::to_string(coinAmtArr[3]));
+        coinAddPrice4Label.set_text(std::to_string(coinAddPriceArr[3]));
+        coinAddTotal4Label.set_text(std::to_string(coinAddTotalArr[3]));
+        coinCurrentPrice4Label.set_text(std::to_string(coinCurrentPriceArr[3]));
+        coinTotalPrice4Label.set_text(std::to_string(coinTotalPriceArr[3]));
+    }
 
-    coinName5Label.set_text(coinNameArr[4]);
-    coinSymbol5Label.set_text(coinSymArr[4]);
-    coinAmount5Label.set_text(std::to_string(coinAmtArr[4]));
-    coinAddPrice5Label.set_text(std::to_string(coinAddPriceArr[4]));
-    coinAddTotal5Label.set_text(std::to_string(coinAddTotalArr[4]));
-    coinCurrentPrice5Label.set_text(std::to_string(coinCurrentPriceArr[4]));
-    coinTotalPrice5Label.set_text(std::to_string(coinTotalPriceArr[4]));
+    if (coinNameArr[4] != "") {
+        coinName5Label.set_text(coinNameArr[4]);
+        coinSymbol5Label.set_text(coinSymArr[4]);
+        coinAmount5Label.set_text(std::to_string(coinAmtArr[4]));
+        coinAddPrice5Label.set_text(std::to_string(coinAddPriceArr[4]));
+        coinAddTotal5Label.set_text(std::to_string(coinAddTotalArr[4]));
+        coinCurrentPrice5Label.set_text(std::to_string(coinCurrentPriceArr[4]));
+        coinTotalPrice5Label.set_text(std::to_string(coinTotalPriceArr[4]));
+    }
 }
 
 void MainMenu::navigate_next() {
-    pageNum++;
-    sql::ResultSet* coins = userObj->user_coins();
-    for (int i = 0; i < 5 * pageNum; i++) {
-        coins->next();
+    if (userObj->isLoggedIn()) {
+        pageNum++;
+        clear_arrays();
+        sql::ResultSet* coins = userObj->user_coins();
+        if (displayAll) {
+            for (int i = 0; i < pageNum * 5; i++) {
+                if (!coins->next()) {
+                    holdings_display_all();
+                    break;
+                }
+            }
+
+            for (int i = 0; i < 5; i++) {
+                if (coins->next()) {
+                    std::cout << coins->rowsCount() << std::endl;
+                    std::cout << coins->getInt(1) << std::endl;
+                    int coinId = coins->getInt(1);
+                    std::string coinSym = userObj->coinid_symbol(coinId);
+                    coinNameArr[i] = userObj->coin_name(coinSym);
+                    coinSymArr[i] = coinSym;
+                    coinAmtArr[i] = userObj->get_amount(coinId);
+                    coinAddPriceArr[i] = userObj->start_price(coinId);
+                    coinAddTotalArr[i] = userObj->start_worth(coinId);
+                    coinCurrentPriceArr[i] = userObj->curr_price(coinId);
+                    coinTotalPriceArr[i] = userObj->curr_worth(coinId);
+                } else {
+                    break;
+                }
+            }
+            fill_values();
+        } else {
+            int i = 0;
+            while (i < 5 * pageNum) {
+                if (coins->next()) {
+                    int coinId = coins->getInt(1);
+                    std::string coinSym = userObj->coinid_symbol(coinId);
+                    std::string coinName = userObj->coin_name(coinSym);
+                    if (coinName == coinNameText2.get_text().raw()) {
+                        i++;
+                    }
+                } else {
+                    holdings_button_clicked();
+                    i = -1;
+                    break;
+                }
+            }
+
+            if (i != -1) {
+                i = 0;
+
+                while (i < 5) {
+                    if (coins->next()) {
+                        int coinId = coins->getInt(1);
+                        std::string coinSym = userObj->coinid_symbol(coinId);
+                        std::string coinName = userObj->coin_name(coinSym);
+                        if (coinName == coinNameText2.get_text().raw()) {
+                            coinNameArr[i] = coinName;
+                            coinSymArr[i] = coinSym;
+                            coinAmtArr[i] = userObj->get_amount(coinId);
+                            coinAddPriceArr[i] = userObj->start_price(coinId);
+                            coinAddTotalArr[i] = userObj->start_worth(coinId);
+                            coinCurrentPriceArr[i] = userObj->curr_price(coinId);
+                            coinTotalPriceArr[i] = userObj->curr_worth(coinId);
+                            i++;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                fill_values();
+            }
+        }
+    } else {
+        createLoginDialog();
     }
 }
 
 void MainMenu::navigate_prev() {
-    pageNum--;
-    if (pageNum < 0) {
-        pageNum = 0;
-    } else {
-        sql::ResultSet*coins = userObj->user_coins();
-        for (int i = 0; i < 5 * pageNum; i++) {
-            coins->next();
+    if (userObj->isLoggedIn()) {
+        pageNum--;
+        if (pageNum < 0) {
+            pageNum = 0;
+        } else {
+            clear_arrays();
+            sql::ResultSet* coins = userObj->user_coins();
+            if (displayAll) {
+                for (int i = 0; i < pageNum * 5; i++) {
+                    if (!coins->next()) {
+                        holdings_display_all();
+                        break;
+                    }
+                }
+
+                for (int i = 0; i < 5; i++) {
+                    if (coins->next()) {
+                        std::cout << coins->rowsCount() << std::endl;
+                        std::cout << coins->getInt(1) << std::endl;
+                        int coinId = coins->getInt(1);
+                        std::string coinSym = userObj->coinid_symbol(coinId);
+                        coinNameArr[i] = userObj->coin_name(coinSym);
+                        coinSymArr[i] = coinSym;
+                        coinAmtArr[i] = userObj->get_amount(coinId);
+                        coinAddPriceArr[i] = userObj->start_price(coinId);
+                        coinAddTotalArr[i] = userObj->start_worth(coinId);
+                        coinCurrentPriceArr[i] = userObj->curr_price(coinId);
+                        coinTotalPriceArr[i] = userObj->curr_worth(coinId);
+                    } else {
+                        break;
+                    }
+                }
+                fill_values();
+            } else {
+                int i = 0;
+                while (i < 5 * pageNum) {
+                    if (coins->next()) {
+                        int coinId = coins->getInt(1);
+                        std::string coinSym = userObj->coinid_symbol(coinId);
+                        std::string coinName = userObj->coin_name(coinSym);
+                        if (coinName == coinNameText2.get_text().raw()) {
+                            i++;
+                        }
+                    } else {
+                        holdings_button_clicked();
+                        i = -1;
+                        break;
+                    }
+                }
+
+                if (i != -1) {
+                    i = 0;
+
+                    while (i < 5) {
+                        if (coins->next()) {
+                            int coinId = coins->getInt(1);
+                            std::string coinSym = userObj->coinid_symbol(coinId);
+                            std::string coinName = userObj->coin_name(coinSym);
+                            if (coinName == coinNameText2.get_text().raw()) {
+                                coinNameArr[i] = coinName;
+                                coinSymArr[i] = coinSym;
+                                coinAmtArr[i] = userObj->get_amount(coinId);
+                                coinAddPriceArr[i] = userObj->start_price(coinId);
+                                coinAddTotalArr[i] = userObj->start_worth(coinId);
+                                coinCurrentPriceArr[i] = userObj->curr_price(coinId);
+                                coinTotalPriceArr[i] = userObj->curr_worth(coinId);
+                                i++;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                    fill_values();
+                }
+            }
         }
+    } else {
+        createLoginDialog();
     }
 
 }
