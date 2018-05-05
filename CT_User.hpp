@@ -16,7 +16,7 @@ class CT_User {
     bool login();
     bool delete_coinID(int coin_id);
     void delete_curr_user();
-    bool add_coinID(std::string symbol, int amount);
+    bool add_coinID(std::string symbol, double amount);
     void log_out(std::string user);
     sql::ResultSet* user_coins();
     long int last_access();
