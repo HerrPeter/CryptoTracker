@@ -7,17 +7,36 @@ MainMenu::MainMenu()
     this->resize(400, 200);
     set_border_width(10);
 
+    pageNum = 0;
 
+    displayAll = false;
 
 
     coinNameText.set_placeholder_text("Coin Name");
     coinNameText2.set_placeholder_text("Coin Name");
     coinAmountText.set_placeholder_text("Coin Amount");
 
+    username.set_placeholder_text("Username");
+    switchUserButton.add_label("Switch User");
+    switchUserButton.set_size_request(150, 50);
+
+    switchUserButton.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::switchUser));
+
+    thirdGrid.attach(username, 0, 0, 1, 1);
+    thirdGrid.attach(switchUserButton, 1, 0, 1, 1);
+
 
 
     coinNameButton.add_label("Submit");
     coinAmountButton.add_label("Submit");
+    coinNameButton2.add_label("Submit");
+    displayAllHoldings.add_label("Show All Coins");
+    displayAllHoldings.set_size_request(150, 50);
+
+    nextPage.add_label("Next");
+    nextPage.set_size_request(150, 50);
+    previousPage.add_label("Prev");
+    previousPage.set_size_request(150, 50);
     coinNameButton.set_size_request(150, 50);
     coinNameButton2.set_size_request(150, 50);
     coinAmountButton.set_size_request(150, 50);
@@ -25,12 +44,22 @@ MainMenu::MainMenu()
     coinNameButton.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::coin_button_clicked));
     coinAmountButton.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::amount_button_clicked));
     coinNameButton2.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::holdings_button_clicked));
+    displayAllHoldings.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::holdings_display_all));
+    nextPage.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::navigate_next));
+    previousPage.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::navigate_prev));
 
     symbolLabel.set_text("Symbol:");
     symbolValue.set_text("");
     priceLabel.set_text("Price:");
     priceValue.set_text("");
 
+    coinNameLabel.set_text("Coin Name");
+    coinSymbolLabel.set_text("Coin Symbol");
+    coinAmountLabel.set_text("Quantity");
+    coinAddPriceLabel.set_text("Initial Price per Coin");
+    coinAddTotalLabel.set_text("Total Initial Price");
+    coinCurrentPriceLabel.set_text("Current Price per Coin");
+    coinTotalPriceLabel.set_text("Total Current Price");
 
     mainGrid.attach(coinNameText, 0, 0, 2, 1);
     mainGrid.attach(coinNameButton, 2, 0, 2, 1);
@@ -44,14 +73,97 @@ MainMenu::MainMenu()
     mainGrid.attach(coinAmountButton, 2, 2, 2, 1);
 
 
-    secondaryGrid.attach(coinNameText2, 0, 0, 1, 1);
-    secondaryGrid.attach(coinNameButton2, 1, 0, 1, 1);
+    secondaryGrid.attach(coinNameText2, 2, 0, 1, 1);
+    secondaryGrid.attach(coinNameButton2, 3, 0, 1, 1);
+    secondaryGrid.attach(displayAllHoldings, 4, 0, 1, 1);
+
+
+    coinNameLabel.set_size_request(150, 50);
+    coinName1Label.set_size_request(150, 50);
+    coinName2Label.set_size_request(150, 50);
+    coinName3Label.set_size_request(150, 50);
+    coinName4Label.set_size_request(150, 50);
+    coinName5Label.set_size_request(150, 50);
+
+    coinSymbolLabel.set_size_request(150, 50);
+    coinSymbol1Label.set_size_request(150, 50);
+    coinSymbol2Label.set_size_request(150, 50);
+    coinSymbol3Label.set_size_request(150, 50);
+    coinSymbol4Label.set_size_request(150, 50);
+    coinSymbol5Label.set_size_request(150, 50);
+
+    coinCurrentPriceLabel.set_size_request(150, 50);
+    coinCurrentPrice1Label.set_size_request(150, 50);
+    coinCurrentPrice2Label.set_size_request(150, 50);
+    coinCurrentPrice3Label.set_size_request(150, 50);
+    coinCurrentPrice4Label.set_size_request(150, 50);
+    coinCurrentPrice5Label.set_size_request(150, 50);
+
+    coinTotalPriceLabel.set_size_request(150, 50);
+    coinTotalPrice1Label.set_size_request(150, 50);
+    coinTotalPrice2Label.set_size_request(150, 50);
+    coinTotalPrice3Label.set_size_request(150, 50);
+    coinTotalPrice4Label.set_size_request(150, 50);
+    coinTotalPrice5Label.set_size_request(150, 50);
+
+    secondaryGrid.attach(coinNameLabel, 0, 1, 1, 1);
+    secondaryGrid.attach(coinSymbolLabel, 1, 1, 1, 1);
+    secondaryGrid.attach(coinAmountLabel, 2, 1, 1, 1);
+    secondaryGrid.attach(coinAddPriceLabel, 3, 1, 1, 1);
+    secondaryGrid.attach(coinAddTotalLabel, 4, 1, 1, 1);
+    secondaryGrid.attach(coinCurrentPriceLabel, 5, 1, 1, 1);
+    secondaryGrid.attach(coinTotalPriceLabel, 6, 1, 1, 1);
+
+    secondaryGrid.attach(coinName1Label, 0, 2, 1, 1);
+    secondaryGrid.attach(coinSymbol1Label, 1, 2, 1, 1);
+    secondaryGrid.attach(coinAmount1Label, 2, 2, 1, 1);
+    secondaryGrid.attach(coinAddPrice1Label, 3, 2, 1, 1);
+    secondaryGrid.attach(coinAddTotal1Label, 4, 2, 1, 1);
+    secondaryGrid.attach(coinCurrentPrice1Label, 5, 2, 1, 1);
+    secondaryGrid.attach(coinTotalPrice1Label, 6, 2, 1, 1);
+
+    secondaryGrid.attach(coinName2Label, 0, 3, 1, 1);
+    secondaryGrid.attach(coinSymbol2Label, 1, 3, 1, 1);
+    secondaryGrid.attach(coinAmount2Label, 2, 3, 1, 1);
+    secondaryGrid.attach(coinAddPrice2Label, 3, 3, 1, 1);
+    secondaryGrid.attach(coinAddTotal2Label, 4, 3, 1, 1);
+    secondaryGrid.attach(coinCurrentPrice2Label, 5, 3, 1, 1);
+    secondaryGrid.attach(coinTotalPrice2Label, 6, 3, 1, 1);
+
+    secondaryGrid.attach(coinName3Label, 0, 4, 1, 1);
+    secondaryGrid.attach(coinSymbol3Label, 1, 4, 1, 1);
+    secondaryGrid.attach(coinAmount3Label, 2, 4, 1, 1);
+    secondaryGrid.attach(coinAddPrice3Label, 3, 4, 1, 1);
+    secondaryGrid.attach(coinAddTotal3Label, 4, 4, 1, 1);
+    secondaryGrid.attach(coinCurrentPrice3Label, 5, 4, 1, 1);
+    secondaryGrid.attach(coinTotalPrice3Label, 6, 4, 1, 1);
+
+    secondaryGrid.attach(coinName4Label, 0, 5, 1, 1);
+    secondaryGrid.attach(coinSymbol4Label, 1, 5, 1, 1);
+    secondaryGrid.attach(coinAmount4Label, 2, 5, 1, 1);
+    secondaryGrid.attach(coinAddPrice4Label, 3, 5, 1, 1);
+    secondaryGrid.attach(coinAddTotal4Label, 4, 5, 1, 1);
+    secondaryGrid.attach(coinCurrentPrice4Label, 5, 5, 1, 1);
+    secondaryGrid.attach(coinTotalPrice4Label, 6, 5, 1, 1);
+
+    secondaryGrid.attach(coinName5Label, 0, 6, 1, 1);
+    secondaryGrid.attach(coinSymbol5Label, 1, 6, 1, 1);
+    secondaryGrid.attach(coinAmount5Label, 2, 6, 1, 1);
+    secondaryGrid.attach(coinAddPrice5Label, 3, 6, 1, 1);
+    secondaryGrid.attach(coinAddTotal5Label, 4, 6, 1, 1);
+    secondaryGrid.attach(coinCurrentPrice5Label, 5, 6, 1, 1);
+    secondaryGrid.attach(coinTotalPrice5Label, 6, 6, 1, 1);
+
+    secondaryGrid.attach(previousPage, 2, 7, 1, 1);
+    secondaryGrid.attach(nextPage, 4, 7, 1, 1);
 
     mainGrid.show_all();
     secondaryGrid.show_all();
+    thirdGrid.show_all();
 
     selector.append_page(mainGrid, "Home");
     selector.append_page(secondaryGrid, "Holdings");
+    selector.append_page(thirdGrid, "Switch User");
     add(selector);
     show_all_children();
 
@@ -149,7 +261,8 @@ void MainMenu::amount_button_clicked() {
 
 void MainMenu::holdings_button_clicked() {
     std::cout << "Perform holdings action" << std::endl;
-
+    pageNum = 0;
+    clear_all_values();
     if (userObj->isLoggedIn()) {
 
     } else {
@@ -157,11 +270,152 @@ void MainMenu::holdings_button_clicked() {
     }
 }
 
+void MainMenu::clear_all_values() {
+    coinName1Label.set_text("");
+    coinSymbol1Label.set_text("");
+    coinAmount1Label.set_text("");
+    coinAddPrice1Label.set_text("");
+    coinAddTotal1Label.set_text("");
+    coinCurrentPrice1Label.set_text("");
+    coinTotalPrice1Label.set_text("");
+
+    coinName2Label.set_text("");
+    coinSymbol2Label.set_text("");
+    coinAmount2Label.set_text("");
+    coinAddPrice2Label.set_text("");
+    coinAddTotal2Label.set_text("");
+    coinCurrentPrice2Label.set_text("");
+    coinTotalPrice2Label.set_text("");
+
+    coinName3Label.set_text("");
+    coinSymbol3Label.set_text("");
+    coinAmount3Label.set_text("");
+    coinAddPrice3Label.set_text("");
+    coinAddTotal3Label.set_text("");
+    coinCurrentPrice3Label.set_text("");
+    coinTotalPrice3Label.set_text("");
+
+    coinName4Label.set_text("");
+    coinSymbol4Label.set_text("");
+    coinAmount4Label.set_text("");
+    coinAddPrice4Label.set_text("");
+    coinAddTotal4Label.set_text("");
+    coinCurrentPrice4Label.set_text("");
+    coinTotalPrice4Label.set_text("");
+
+    coinName5Label.set_text("");
+    coinSymbol5Label.set_text("");
+    coinAmount5Label.set_text("");
+    coinAddPrice5Label.set_text("");
+    coinAddTotal5Label.set_text("");
+    coinCurrentPrice5Label.set_text("");
+    coinTotalPrice5Label.set_text("");
+}
+
 void MainMenu::login() {
     if (enterUsername.get_text() != "") {
         userObj = new CT_User(enterUsername.get_text().raw());
+        userObj->login();
         delete loginDialog;
     }
+}
+
+void MainMenu::switchUser() {
+    if (username.get_text() != "") {
+        userObj->log_out(username.get_text().raw());
+    } else {
+        Gtk::MessageDialog *invalidUser = new Gtk::MessageDialog("Please enter a username");
+        invalidUser->set_modal(true);
+        invalidUser->set_transient_for(*this);
+        invalidUser->set_title("Invalid User");
+        invalidUser->set_size_request(200, 100);
+        invalidUser->show_all_children();
+        invalidUser->run();
+        delete invalidUser;
+    }
+}
+
+void MainMenu::holdings_display_all() {
+    displayAll = true;
+    pageNum = 0;
+    sql::ResultSet* coins = userObj->user_coins();
+    for (int i = 0; i < 5; i++) {
+        int coinId = coins->getInt(1);
+        std::string coinSym = userObj->coinid_symbol(coinId);
+        coinNameArr[i] = userObj->coin_name(coinSym);
+        coinSymArr[i] = coinSym;
+        coinAmtArr[i] = userObj->get_amount(coinId);
+        coinAddPriceArr[i] = userObj->start_price(coinId);
+        coinAddTotalArr[i] = userObj->start_worth(coinId);
+        coinCurrentPriceArr[i] = userObj->curr_price(coinId);
+        coinTotalPriceArr[i] = userObj->curr_worth(coinId);
+        coins->next();
+    }
+    fill_values();
+
+}
+
+void MainMenu::fill_values() {
+    coinName1Label.set_text(coinNameArr[0]);
+    coinSymbol1Label.set_text(coinSymArr[0]);
+    coinAmount1Label.set_text(std::to_string(coinAmtArr[0]));
+    coinAddPrice1Label.set_text(std::to_string(coinAddPriceArr[0]));
+    coinAddTotal1Label.set_text(std::to_string(coinAddTotalArr[0]));
+    coinCurrentPrice1Label.set_text(std::to_string(coinCurrentPriceArr[0]));
+    coinTotalPrice1Label.set_text(std::to_string(coinTotalPriceArr[0]));
+
+    coinName2Label.set_text(coinNameArr[1]);
+    coinSymbol2Label.set_text(coinSymArr[1]);
+    coinAmount2Label.set_text(std::to_string(coinAmtArr[1]));
+    coinAddPrice2Label.set_text(std::to_string(coinAddPriceArr[1]));
+    coinAddTotal2Label.set_text(std::to_string(coinAddTotalArr[1]));
+    coinCurrentPrice2Label.set_text(std::to_string(coinCurrentPriceArr[1]));
+    coinTotalPrice2Label.set_text(std::to_string(coinTotalPriceArr[1]));
+
+    coinName3Label.set_text(coinNameArr[2]);
+    coinSymbol3Label.set_text(coinSymArr[2]);
+    coinAmount3Label.set_text(std::to_string(coinAmtArr[2]));
+    coinAddPrice3Label.set_text(std::to_string(coinAddPriceArr[2]));
+    coinAddTotal3Label.set_text(std::to_string(coinAddTotalArr[2]));
+    coinCurrentPrice3Label.set_text(std::to_string(coinCurrentPriceArr[2]));
+    coinTotalPrice3Label.set_text(std::to_string(coinTotalPriceArr[2]));
+
+    coinName4Label.set_text(coinNameArr[3]);
+    coinSymbol4Label.set_text(coinSymArr[3]);
+    coinAmount4Label.set_text(std::to_string(coinAmtArr[3]));
+    coinAddPrice4Label.set_text(std::to_string(coinAddPriceArr[3]));
+    coinAddTotal4Label.set_text(std::to_string(coinAddTotalArr[3]));
+    coinCurrentPrice4Label.set_text(std::to_string(coinCurrentPriceArr[3]));
+    coinTotalPrice4Label.set_text(std::to_string(coinTotalPriceArr[3]));
+
+    coinName5Label.set_text(coinNameArr[4]);
+    coinSymbol5Label.set_text(coinSymArr[4]);
+    coinAmount5Label.set_text(std::to_string(coinAmtArr[4]));
+    coinAddPrice5Label.set_text(std::to_string(coinAddPriceArr[4]));
+    coinAddTotal5Label.set_text(std::to_string(coinAddTotalArr[4]));
+    coinCurrentPrice5Label.set_text(std::to_string(coinCurrentPriceArr[4]));
+    coinTotalPrice5Label.set_text(std::to_string(coinTotalPriceArr[4]));
+}
+
+void MainMenu::navigate_next() {
+    pageNum++;
+    sql::ResultSet* coins = userObj->user_coins();
+    for (int i = 0; i < 5 * pageNum; i++) {
+        coins->next();
+    }
+}
+
+void MainMenu::navigate_prev() {
+    pageNum--;
+    if (pageNum < 0) {
+        pageNum = 0;
+    } else {
+        sql::ResultSet*coins = userObj->user_coins();
+        for (int i = 0; i < 5 * pageNum; i++) {
+            coins->next();
+        }
+    }
+
 }
 
 
