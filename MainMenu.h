@@ -21,6 +21,8 @@ class MainMenu : public Gtk::Window
 
         void clear_all_values();
 
+        void clear_arrays();
+
         void fill_values();
 
         void holdings_display_all();
