@@ -1,58 +1,61 @@
+
 #include "MainMenu.h"
 #include <iostream>
 
 MainMenu::MainMenu()
 {
+    //sets up a new user
     userObj = new CT_User();
+
+    // minimum screen size
     this->resize(400, 200);
     set_border_width(10);
 
+    // initialize pages
     pageNum = 0;
 
     displayAll = false;
 
-
+    // placeholder text
     coinNameText.set_placeholder_text("Coin Name");
     coinNameText2.set_placeholder_text("Coin Name");
     coinAmountText.set_placeholder_text("Coin Amount");
-
     username.set_placeholder_text("Username");
+
+    // button labels
     switchUserButton.add_label("Switch User");
-    switchUserButton.set_size_request(150, 50);
-
-    switchUserButton.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::switchUser));
-
-    thirdGrid.attach(username, 0, 0, 1, 1);
-    thirdGrid.attach(switchUserButton, 1, 0, 1, 1);
-
-
-
     coinNameButton.add_label("Submit");
     coinAmountButton.add_label("Submit");
     coinNameButton2.add_label("Submit");
     displayAllHoldings.add_label("Show All Coins");
-    displayAllHoldings.set_size_request(150, 50);
-
     nextPage.add_label("Next");
-    nextPage.set_size_request(150, 50);
     previousPage.add_label("Prev");
+
+    // button size requests
+    switchUserButton.set_size_request(150, 50);
+    nextPage.set_size_request(150, 50);
+    displayAllHoldings.set_size_request(150, 50);
     previousPage.set_size_request(150, 50);
     coinNameButton.set_size_request(150, 50);
     coinNameButton2.set_size_request(150, 50);
     coinAmountButton.set_size_request(150, 50);
 
+    // singal handlers
     coinNameButton.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::coin_button_clicked));
     coinAmountButton.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::amount_button_clicked));
     coinNameButton2.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::holdings_button_clicked));
     displayAllHoldings.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::holdings_display_all));
     nextPage.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::navigate_next));
     previousPage.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::navigate_prev));
+    switchUserButton.signal_clicked().connect(sigc::mem_fun(*this, &MainMenu::switchUser));
 
+    // labels
     symbolLabel.set_text("Symbol:");
     symbolValue.set_text("");
     priceLabel.set_text("Price:");
     priceValue.set_text("");
 
+    // page setup
     coinNameLabel.set_text("Coin Name");
     coinSymbolLabel.set_text("Coin Symbol");
     coinAmountLabel.set_text("Quantity");
@@ -61,6 +64,7 @@ MainMenu::MainMenu()
     coinCurrentPriceLabel.set_text("Current Price per Coin");
     coinTotalPriceLabel.set_text("Total Current Price");
 
+    // main grid attachments
     mainGrid.attach(coinNameText, 0, 0, 2, 1);
     mainGrid.attach(coinNameButton, 2, 0, 2, 1);
 
@@ -72,12 +76,16 @@ MainMenu::MainMenu()
     mainGrid.attach(coinAmountText, 0, 2, 2, 1);
     mainGrid.attach(coinAmountButton, 2, 2, 2, 1);
 
-
+    // secondary grid attachments
     secondaryGrid.attach(coinNameText2, 2, 0, 1, 1);
     secondaryGrid.attach(coinNameButton2, 3, 0, 1, 1);
     secondaryGrid.attach(displayAllHoldings, 4, 0, 1, 1);
 
+    // third grid attachments
+    thirdGrid.attach(username, 0, 0, 1, 1);
+    thirdGrid.attach(switchUserButton, 1, 0, 1, 1);
 
+    // page size requests
     coinNameLabel.set_size_request(150, 50);
     coinName1Label.set_size_request(150, 50);
     coinName2Label.set_size_request(150, 50);
@@ -106,6 +114,7 @@ MainMenu::MainMenu()
     coinTotalPrice4Label.set_size_request(150, 50);
     coinTotalPrice5Label.set_size_request(150, 50);
 
+    // page attachments
     secondaryGrid.attach(coinNameLabel, 0, 1, 1, 1);
     secondaryGrid.attach(coinSymbolLabel, 1, 1, 1, 1);
     secondaryGrid.attach(coinAmountLabel, 2, 1, 1, 1);
@@ -157,10 +166,12 @@ MainMenu::MainMenu()
     secondaryGrid.attach(previousPage, 2, 7, 1, 1);
     secondaryGrid.attach(nextPage, 4, 7, 1, 1);
 
+    // show all elements
     mainGrid.show_all();
     secondaryGrid.show_all();
     thirdGrid.show_all();
 
+    // set up three tab layout
     selector.append_page(mainGrid, "Home");
     selector.append_page(secondaryGrid, "Holdings");
     selector.append_page(thirdGrid, "Switch User");
@@ -169,6 +180,7 @@ MainMenu::MainMenu()
 
 }
 
+// creates a login dialog box to allow the user to login
 void MainMenu::createLoginDialog() {
     loginDialog = new Gtk::Dialog();
     loginDialog->set_title("Login");
@@ -182,12 +194,12 @@ void MainMenu::createLoginDialog() {
     loginButton.set_can_default();
     loginButton.grab_default();
     loginDialog->show_all_children();
-    loginDialog->set_size_request(200, 100);
+    loginDialog->set_size_request(200, 80);
     loginDialog->run();
 }
 
+// looks up the current symbol and price of a coin
 void MainMenu::coin_button_clicked() {
-    std::cout << "Perform coin lookup" << std::endl;
     std::string coinSym = CC_API_Calls::get_coin_symbol(coinNameText.get_text().raw());
     if (coinSym == "") {
         // display coin not found dialog
@@ -200,15 +212,15 @@ void MainMenu::coin_button_clicked() {
         emptyMessage->run();
         delete emptyMessage;
     } else {
+        // output the current symbol and price of the coin
         symbolValue.set_text(coinSym);
         std::string coinPrice = CC_API_Calls::get_price(coinSym);
         priceValue.set_text("$" + coinPrice);
     }
 }
 
+// adds an amount of a given coin to the user's account
 void MainMenu::amount_button_clicked() {
-    std::cout << "Perform amount addition" << std::endl;
-
     if (userObj->isLoggedIn()) {
         if (coinNameText.get_text().raw().empty()) {
             // display empty dialog
@@ -226,10 +238,18 @@ void MainMenu::amount_button_clicked() {
 
                 std::string coinSym = CC_API_Calls::get_coin_symbol(coinNameText.get_text().raw());
                 if (coinSym != "") {
-
                     // insert coin into database, and credit amount to user's account
                     userObj->add_coin(coinNameText.get_text().raw());
                     userObj->add_coinID(CC_API_Calls::get_coin_symbol(coinNameText.get_text().raw()), amt);
+                    Gtk::MessageDialog *amtSuccess = new Gtk::MessageDialog("Coin added successfully");
+                    amtSuccess->set_modal(true);
+                    amtSuccess->set_transient_for(*this);
+                    amtSuccess->set_title("Coin Success");
+                    amtSuccess->set_size_request(200, 100);
+                    amtSuccess->show_all_children();
+                    amtSuccess->run();
+                    delete amtSuccess;
+
                 } else {
                     // display coin not found dialog
                     Gtk::MessageDialog *emptyMessage = new Gtk::MessageDialog("Invalid coin name");
@@ -256,9 +276,11 @@ void MainMenu::amount_button_clicked() {
         }
     } else {
         createLoginDialog();
+        amount_button_clicked();
     }
 }
 
+// clears all page arrays
 void MainMenu::clear_arrays() {
     for (int i = 0; i < 5; i++) {
         coinNameArr[i] = "";
@@ -271,6 +293,7 @@ void MainMenu::clear_arrays() {
     }
 }
 
+// displays user account results based on what coin is entered
 void MainMenu::holdings_button_clicked() {
     if (userObj->isLoggedIn()) {
         clear_arrays();
@@ -283,6 +306,7 @@ void MainMenu::holdings_button_clicked() {
                 int coinId = coins->getInt(1);
                 std::string coinSym = userObj->coinid_symbol(coinId);
                 std::string coinName = userObj->coin_name(coinSym);
+                // if coin matches the name entered in the textbox, then it should be displayed
                 if (coinName == coinNameText2.get_text().raw()) {
                     coinNameArr[i] = coinName;
                     coinSymArr[i] = coinSym;
@@ -294,15 +318,18 @@ void MainMenu::holdings_button_clicked() {
                     i++;
                 }
             } else {
+                // end of data table
                 break;
             }
         }
         fill_values();
     } else {
         createLoginDialog();
+        holdings_button_clicked();
     }
 }
 
+// clears all page values
 void MainMenu::clear_all_values() {
     coinName1Label.set_text("");
     coinSymbol1Label.set_text("");
@@ -345,17 +372,32 @@ void MainMenu::clear_all_values() {
     coinTotalPrice5Label.set_text("");
 }
 
+// logs the user in
 void MainMenu::login() {
     if (enterUsername.get_text() != "") {
         userObj = new CT_User(enterUsername.get_text().raw());
         userObj->login();
         delete loginDialog;
+        clear_arrays();
+        clear_all_values();
     }
 }
 
+// switches the user
 void MainMenu::switchUser() {
     if (username.get_text() != "") {
         userObj->log_out(username.get_text().raw());
+        clear_arrays();
+        clear_all_values();
+        Gtk::MessageDialog *userSuccess = new Gtk::MessageDialog("User switched successfully");
+        userSuccess->set_modal(true);
+        userSuccess->set_transient_for(*this);
+        userSuccess->set_title("User Success");
+        userSuccess->set_size_request(200, 100);
+        userSuccess->show_all_children();
+        userSuccess->run();
+        delete userSuccess;
+
     } else {
         Gtk::MessageDialog *invalidUser = new Gtk::MessageDialog("Please enter a username");
         invalidUser->set_modal(true);
@@ -368,6 +410,7 @@ void MainMenu::switchUser() {
     }
 }
 
+// displays all coins added to an account
 void MainMenu::holdings_display_all() {
     if (userObj->isLoggedIn()) {
         clear_arrays();
@@ -376,8 +419,6 @@ void MainMenu::holdings_display_all() {
         sql::ResultSet* coins = userObj->user_coins();
         for (int i = 0; i < 5; i++) {
             if (coins->next()) {
-                std::cout << coins->rowsCount() << std::endl;
-                std::cout << coins->getInt(1) << std::endl;
                 int coinId = coins->getInt(1);
                 std::string coinSym = userObj->coinid_symbol(coinId);
                 coinNameArr[i] = userObj->coin_name(coinSym);
@@ -398,66 +439,72 @@ void MainMenu::holdings_display_all() {
 
 }
 
+// fills the page values
 void MainMenu::fill_values() {
+    // nulls the values out first
     clear_all_values();
+
     if (coinNameArr[0] != "") {
         coinName1Label.set_text(coinNameArr[0]);
         coinSymbol1Label.set_text(coinSymArr[0]);
         coinAmount1Label.set_text(std::to_string(coinAmtArr[0]));
-        coinAddPrice1Label.set_text(std::to_string(coinAddPriceArr[0]));
-        coinAddTotal1Label.set_text(std::to_string(coinAddTotalArr[0]));
-        coinCurrentPrice1Label.set_text(std::to_string(coinCurrentPriceArr[0]));
-        coinTotalPrice1Label.set_text(std::to_string(coinTotalPriceArr[0]));
+        coinAddPrice1Label.set_text("$" + std::to_string(coinAddPriceArr[0]));
+        coinAddTotal1Label.set_text("$" + std::to_string(coinAddTotalArr[0]));
+        coinCurrentPrice1Label.set_text("$" + std::to_string(coinCurrentPriceArr[0]));
+        coinTotalPrice1Label.set_text("$" + std::to_string(coinTotalPriceArr[0]));
     }
 
     if (coinNameArr[1] != "") {
         coinName2Label.set_text(coinNameArr[1]);
         coinSymbol2Label.set_text(coinSymArr[1]);
         coinAmount2Label.set_text(std::to_string(coinAmtArr[1]));
-        coinAddPrice2Label.set_text(std::to_string(coinAddPriceArr[1]));
-        coinAddTotal2Label.set_text(std::to_string(coinAddTotalArr[1]));
-        coinCurrentPrice2Label.set_text(std::to_string(coinCurrentPriceArr[1]));
-        coinTotalPrice2Label.set_text(std::to_string(coinTotalPriceArr[1]));
+        coinAddPrice2Label.set_text("$" + std::to_string(coinAddPriceArr[1]));
+        coinAddTotal2Label.set_text("$" + std::to_string(coinAddTotalArr[1]));
+        coinCurrentPrice2Label.set_text("$" + std::to_string(coinCurrentPriceArr[1]));
+        coinTotalPrice2Label.set_text("$" + std::to_string(coinTotalPriceArr[1]));
     }
 
     if (coinNameArr[2] != "") {
         coinName3Label.set_text(coinNameArr[2]);
         coinSymbol3Label.set_text(coinSymArr[2]);
         coinAmount3Label.set_text(std::to_string(coinAmtArr[2]));
-        coinAddPrice3Label.set_text(std::to_string(coinAddPriceArr[2]));
-        coinAddTotal3Label.set_text(std::to_string(coinAddTotalArr[2]));
-        coinCurrentPrice3Label.set_text(std::to_string(coinCurrentPriceArr[2]));
-        coinTotalPrice3Label.set_text(std::to_string(coinTotalPriceArr[2]));
+        coinAddPrice3Label.set_text("$" + std::to_string(coinAddPriceArr[2]));
+        coinAddTotal3Label.set_text("$" + std::to_string(coinAddTotalArr[2]));
+        coinCurrentPrice3Label.set_text("$" + std::to_string(coinCurrentPriceArr[2]));
+        coinTotalPrice3Label.set_text("$" + std::to_string(coinTotalPriceArr[2]));
     }
 
     if (coinNameArr[3] != "") {
         coinName4Label.set_text(coinNameArr[3]);
         coinSymbol4Label.set_text(coinSymArr[3]);
         coinAmount4Label.set_text(std::to_string(coinAmtArr[3]));
-        coinAddPrice4Label.set_text(std::to_string(coinAddPriceArr[3]));
-        coinAddTotal4Label.set_text(std::to_string(coinAddTotalArr[3]));
-        coinCurrentPrice4Label.set_text(std::to_string(coinCurrentPriceArr[3]));
-        coinTotalPrice4Label.set_text(std::to_string(coinTotalPriceArr[3]));
+        coinAddPrice4Label.set_text("$" + std::to_string(coinAddPriceArr[3]));
+        coinAddTotal4Label.set_text("$" + std::to_string(coinAddTotalArr[3]));
+        coinCurrentPrice4Label.set_text("$" + std::to_string(coinCurrentPriceArr[3]));
+        coinTotalPrice4Label.set_text("$" + std::to_string(coinTotalPriceArr[3]));
     }
 
     if (coinNameArr[4] != "") {
         coinName5Label.set_text(coinNameArr[4]);
         coinSymbol5Label.set_text(coinSymArr[4]);
         coinAmount5Label.set_text(std::to_string(coinAmtArr[4]));
-        coinAddPrice5Label.set_text(std::to_string(coinAddPriceArr[4]));
-        coinAddTotal5Label.set_text(std::to_string(coinAddTotalArr[4]));
-        coinCurrentPrice5Label.set_text(std::to_string(coinCurrentPriceArr[4]));
-        coinTotalPrice5Label.set_text(std::to_string(coinTotalPriceArr[4]));
+        coinAddPrice5Label.set_text("$" + std::to_string(coinAddPriceArr[4]));
+        coinAddTotal5Label.set_text("$" + std::to_string(coinAddTotalArr[4]));
+        coinCurrentPrice5Label.set_text("$" + std::to_string(coinCurrentPriceArr[4]));
+        coinTotalPrice5Label.set_text("$" + std::to_string(coinTotalPriceArr[4]));
     }
 }
 
+// navigates to the next page
 void MainMenu::navigate_next() {
     if (userObj->isLoggedIn()) {
         pageNum++;
         clear_arrays();
         sql::ResultSet* coins = userObj->user_coins();
         if (displayAll) {
+            // pagenum * 5 will be the record we want to start from
             for (int i = 0; i < pageNum * 5; i++) {
+                // if we hit the end of the array, then go back to the beginning
                 if (!coins->next()) {
                     holdings_display_all();
                     break;
@@ -466,8 +513,6 @@ void MainMenu::navigate_next() {
 
             for (int i = 0; i < 5; i++) {
                 if (coins->next()) {
-                    std::cout << coins->rowsCount() << std::endl;
-                    std::cout << coins->getInt(1) << std::endl;
                     int coinId = coins->getInt(1);
                     std::string coinSym = userObj->coinid_symbol(coinId);
                     coinNameArr[i] = userObj->coin_name(coinSym);
@@ -529,15 +574,18 @@ void MainMenu::navigate_next() {
     }
 }
 
+// navigates to the previous page
 void MainMenu::navigate_prev() {
     if (userObj->isLoggedIn()) {
         pageNum--;
+        // minimum page is 0
         if (pageNum < 0) {
             pageNum = 0;
         } else {
             clear_arrays();
             sql::ResultSet* coins = userObj->user_coins();
             if (displayAll) {
+                // pagenum * 5 is the first record we want to be at
                 for (int i = 0; i < pageNum * 5; i++) {
                     if (!coins->next()) {
                         holdings_display_all();
@@ -547,8 +595,6 @@ void MainMenu::navigate_prev() {
 
                 for (int i = 0; i < 5; i++) {
                     if (coins->next()) {
-                        std::cout << coins->rowsCount() << std::endl;
-                        std::cout << coins->getInt(1) << std::endl;
                         int coinId = coins->getInt(1);
                         std::string coinSym = userObj->coinid_symbol(coinId);
                         coinNameArr[i] = userObj->coin_name(coinSym);
@@ -616,6 +662,4 @@ void MainMenu::navigate_prev() {
 MainMenu::~MainMenu()
 {
     //dtor
-    //delete userObj;
-
 }
